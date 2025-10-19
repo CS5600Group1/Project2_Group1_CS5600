@@ -13,7 +13,7 @@ struct tunnel{
     queue downstair;
     int counter; // starving
 };
-void tunnelInit(int step);
+void tunnelInit(Tunnel tunnel, int step);
 void threadUpstair();
 void threadDownstair();
 void main();
