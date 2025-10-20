@@ -1,15 +1,16 @@
 #!/usr/bin/make -f
 
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11
+CFLAGS = -Wall -Wextra -std=c11 -pthread
+LDFLAGS = -pthread -lrt
 
 TARGET = stairs
 OBJ_STAIRS = stairs.o stairs_main.o
 
-all: TARGET
+all: $(TARGET)
 
 $(TARGET): $(OBJ_STAIRS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 stairs.o: stairs.c stairs.h
 	$(CC) $(CFLAGS) -c stairs.c -o stairs.o
@@ -17,8 +18,7 @@ stairs.o: stairs.c stairs.h
 stairs_main.o: stairs_main.c stairs.h
 	$(CC) $(CFLAGS) -c stairs_main.c -o stairs_main.o
 
-
-.PHONY: clean
+.PHONY: clean all
 
 clean:
-	rm -f $(OBJ_STAIRS) $(TARGET).exe
+	rm -f $(OBJ_STAIRS) $(TARGET)

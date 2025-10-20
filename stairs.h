@@ -17,6 +17,7 @@
 
 #define DURATION 100000 + rand() % 200000
 
+// Tunnel Structure Definition
 typedef struct {
     int step;
     int dir; // (-1: down, 0: none, 1: up)

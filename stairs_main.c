@@ -1,3 +1,6 @@
+#define _POSIX_C_SOURCE 200809L
+#define _DEFAULT_SOURCE
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -5,8 +8,11 @@
 
 #include "stairs.h"
 
+#ifndef DURATION
 #define DURATION 0
+#endif
 
+// Thread Info Structure
 typedef struct {
     int id;
     int dir;
@@ -14,17 +20,20 @@ typedef struct {
     Tunnel *tunnel;
 } ThreadINFO;
 
+// Global Variables
 pthread_t threads[100];
 ThreadINFO infos[100];
 Tunnel tunnel;
 long turnaroundTime[100];
 
+// Get current time in milliseconds
 long now_ms() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_sec * 1000 + tv.tv_usec / 1000;
 }
 
+// Thread Functions
 void *threadA(void* arg)
 {
     ThreadINFO *info = arg;
@@ -57,7 +66,7 @@ void *threadB(void* arg)
     return NULL;
 }
 
-
+// Main Function
 int main()
 {
     srand(time(NULL));
@@ -67,7 +76,8 @@ int main()
     scanf("%d %d", &customer, &step);
 
     stairInit(&tunnel, step);
-
+    
+    // create threads
     for (int i = 0; i < customer; i++) {
         int id, dir, delay;
         scanf("%d %d %d", &id, &dir, &delay);

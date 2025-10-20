@@ -1,9 +1,13 @@
+#define _POSIX_C_SOURCE 200809L
+#define _DEFAULT_SOURCE
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 
 #include "stairs.h"
 
+// Initialize the Tunnel structure
 void stairInit(Tunnel *tunnel, int step) {
     pthread_mutex_init(&tunnel->lock, NULL);
     pthread_cond_init(&tunnel->cond, NULL);
@@ -19,13 +23,17 @@ void stairInit(Tunnel *tunnel, int step) {
     tunnel->consecutive = 0;
 }
 
+// Thread Functions Declaration
 static void enterStair(Tunnel *tunnel, int direction) {
     printf("Customer(%s)[%lu] waiting for mutex.\n", direction == UP ? "Up" : "Down", GET_PID);
+    
+    // Acquire lock
     pthread_mutex_lock(&tunnel->lock);
 
     if (direction == UP) tunnel->waitingUpstair++;
     else tunnel->waitingDownstair++;
 
+    // Wait until can enter
     while (1) {
         if (direction == UP) {
             if (tunnel->dir != DOWN && tunnel->counterDownstair == 0 && tunnel->consecutive <= STARVATION) break;
@@ -49,16 +57,21 @@ static void enterStair(Tunnel *tunnel, int direction) {
     tunnel->dir = direction;
     tunnel->consecutive++;
 
+    // Release lock
     pthread_mutex_unlock(&tunnel->lock);
 }
 
+// Thread Functions Definition
 static void leaveStair(Tunnel *tunnel, int direction) {
     printf("Customer(%s)[%lu] waiting for mutex.\n", direction == UP ? "Up" : "Down", GET_PID);
+    
+    // Acquire lock
     pthread_mutex_lock(&tunnel->lock);
 
     if (direction == UP) tunnel->counterUpstair--;
     else tunnel->counterDownstair--;
 
+    // Check if direction can change
     if ((direction == UP && (tunnel->counterUpstair == 0 || tunnel->consecutive >= STARVATION)) ||
         (direction == DOWN && (tunnel->counterDownstair == 0 || tunnel->consecutive >= STARVATION))) {
         tunnel->consecutive = 0;
@@ -73,9 +86,12 @@ static void leaveStair(Tunnel *tunnel, int direction) {
         }
 
     printf("Customer(%s)[%lu] left.\n", direction == UP ? "Up" : "Down", GET_PID);
+    
+    // Release lock
     pthread_mutex_unlock(&tunnel->lock);
 }
 
+// Thread Functions
 void threadUpstair(Tunnel *tunnel) {
     // Enter
     enterStair(tunnel, UP);

@@ -8,15 +8,16 @@ echo "CS 5600 Project 2 - Comprehensive Test Framework"
 echo "================================================="
 echo ""
 
-
+#Step 1: make stairs and compile
+echo "Step 1: Compiling the concurrent mock program..."
 make stairs
 echo "✓ Concurrent mock program compiled as 'stairs'"
 echo ""
 
-# Step 2:
+# Step 2:create enhanced test input files
 echo "Step 2: Creating enhanced test input files..."
 
-# Test 1:
+# Test 1: test continuous same-direction arrivals
 cat > test1_continuous.txt << EOF
 10 5
 0 1 0
@@ -31,7 +32,7 @@ cat > test1_continuous.txt << EOF
 9 -1 1200
 EOF
 
-# Test 2:
+# Test 2: test alternating direction arrivals
 cat > test2_alternating.txt << EOF
 10 5
 0 1 0
@@ -46,14 +47,14 @@ cat > test2_alternating.txt << EOF
 9 -1 900
 EOF
 
-# Test 3:
+# Test 3: test deadlock risk scenario
 cat > test3_deadlock_risk.txt << EOF
 2 5
 0 1 0
 1 -1 0
 EOF
 
-# Test 4:
+# Test 4: test dynamic joining while stairs in use
 cat > test4_dynamic_join.txt << EOF
 15 10
 0 1 0
@@ -73,11 +74,45 @@ cat > test4_dynamic_join.txt << EOF
 14 -1 2250
 EOF
 
+# Test 5: test extreme starvation prevention
+cat > test5_extreme_starvation.txt << EOF
+30 10
+0 -1 0
+1 -1 0
+2 -1 0
+3 -1 0
+4 -1 0
+5 -1 0
+6 -1 0
+7 -1 0
+8 -1 0
+9 -1 0
+10 -1 0
+11 -1 0
+12 -1 0
+13 -1 0
+14 -1 0
+15 -1 0
+16 -1 0
+17 -1 0
+18 -1 0
+19 -1 0
+20 -1 0
+21 -1 0
+22 -1 0
+23 -1 0
+24 -1 0
+25 -1 0
+26 -1 0
+27 -1 0
+28 -1 0
+29 1 0
+EOF
 
 echo "✓ Enhanced test input files created"
 echo ""
 
-# Step 3:
+# Step 3: Run comprehensive tests
 echo "Step 3: Running comprehensive tests..."
 echo "========================================="
 
@@ -97,6 +132,7 @@ run_test() {
     timeout 30 ./stairs < $input_file > $output_file 2>&1
     local exit_code=$?
     
+    # Check for timeout
     if [ $exit_code -eq 124 ]; then
         echo "❌ TIMEOUT: Possible deadlock or infinite wait"
         echo "TIMEOUT" > test_outputs/${test_name}_result.txt
@@ -109,6 +145,7 @@ run_test() {
     local waiting=$(grep -c "waiting for direction" $output_file)
     local avg_time=$(grep "Average Turnaround" $output_file | awk '{print $(NF-1)}')
     
+    # Report results
     echo "  Total customers: $total"
     echo "  Finished: $finished"
     echo "  Direction changes: $direction_changes"
@@ -123,7 +160,7 @@ run_test() {
         echo "FAIL" > test_outputs/${test_name}_result.txt
     fi
 }
-
+# Execute tests
 run_test "Test1_Continuous" "test1_continuous.txt" \
     "Same direction customers arrive in bursts"
 
@@ -136,6 +173,9 @@ run_test "Test3_Deadlock" "test3_deadlock_risk.txt" \
 run_test "Test4_Dynamic" "test4_dynamic_join.txt" \
     "Customers join while stairs are in use"
 
+run_test "Test5_Extreme_Starvation" "test5_extreme_starvation.txt" \
+    "29 down vs 1 up simultaneous arrivals"
+
 # Step 4:Report
 echo ""
 echo "========================================="
@@ -146,6 +186,7 @@ pass_count=0
 fail_count=0
 timeout_count=0
 
+# Aggregate results
 for result_file in test_outputs/*_result.txt; do
     result=$(cat $result_file)
     if [ "$result" = "PASS" ]; then
@@ -158,7 +199,7 @@ for result_file in test_outputs/*_result.txt; do
     fi
 done
 
-total_tests=4
+total_tests=5
 echo "Total Tests: $total_tests"
 echo "Passed: $pass_count"
 echo "Failed: $fail_count"
@@ -166,6 +207,7 @@ echo "  - Timeouts/Deadlocks: $timeout_count"
 echo "Success Rate: $((pass_count * 100 / total_tests))%"
 echo ""
 
+# Generate detailed report file
 cat > TEST_REPORT.md << EOF
 # CS 5600 Project 2 - Comprehensive Concurrency Test Report
 
@@ -274,7 +316,7 @@ cat > TEST_REPORT.md << EOF
 4. **Incorrect synchronization**: Customers on stairs simultaneously from different directions
 
 
-
+EOF
 echo "✓ Comprehensive test report generated: TEST_REPORT.md"
 echo ""
 echo "========================================="
