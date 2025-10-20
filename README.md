@@ -55,37 +55,40 @@ If an “up” thread arrives while `dir == 1`, it waits on `upstair`. Similarly
 
 // Represents the shared staircase resource
 struct tunnel {
-    int step;           // Number of steps (determines sleep time)
-    int dir;            // Current direction: 0=none, 1=up, 2=down
-    int counter;        // Number of customers currently on the stairs
 
-    int waiting_up;     // Waiting “up” customers
-    int waiting_down;   // Waiting “down” customers
+    pthread_mutex_t lock;
+    pthread_cond_t cond;
+
+    int step;                  // Number of steps (determines sleep time)
+    int dir;                   // Current direction: 0=none, 1=up, 2=down
+    
+    int counterUpstair;        // Number of customers currently on the stairs
+    int counterDownstair;      // Number of customers currently on the stairs
+
+    int waitingUpstair;        // Waiting “up” customers
+    int waitingDownstair;      // Waiting “down” customers
     
     pthread_mutex_t lock;      // Protects all variables in this struct
-    pthread_cond_t upstair;    // Condition variable for “up” threads
-    pthread_cond_t downstair;  // Condition variable for “down” threads
+    pthread_cond_t cond;       // Condition variable for Single Direction threads
+
+    int consecutive;          // Prevent Starvation by recording how many customers 
+                              // have passed consecutively in the same direction
 };
 
 /**
  * Initializes the global “tunnel” struct, mutex, and condition variables.
  */
-void tunnelInit(int step);
+void stairInit(Tunnel *tunnel, int step);
 
 /**
  * Function executed by “up” threads.
  */
-void *threadUpstair(void *arg);
+void threadUpstair(Tunnel *tunnel);
 
 /**
  * Function executed by “down” threads.
  */
-void *threadDownstair(void *arg);
-
-/**
- * Main entry point. Handles initialization, thread creation, and result computation.
- */
-int main(int argc, char *argv[]);
+void threadDownstair(Tunnel *tunnel);
 ```
 
 ## **3. Testing**
@@ -160,6 +163,7 @@ Turnaround time is measured from the moment a thread is created to the moment it
 | Balanced Load   | 10 Up / 10 Down          | 10                 | `[Fill in your result]`    |
 | Starvation Test | 29 Up / 1 Down           | 10                 | `[Fill in your result]`    |
 | High Contention | 15 Up / 15 Down          | 5                  | `[Fill in your result]`    |
+| High Contention | 15 Up / 15 Down          | 5                  | `[Fill in your result]`    |
 
 ### **"Efficient" Design**
 
@@ -172,17 +176,26 @@ This is achieved with our counter variable. If a customer wants to go "up" and t
 ### **Compilation**
 
 The program must be compiled with gcc and linked against the POSIX threads library (`-lpthread`).
-```c
-# Compile the program (assuming your file is main.c)
-gcc -o stairs_sim main.c -lpthread -std=c11
+
+To build the project:
+```bash
+make stairs
+```
+For the test cases:
+```bash
+bash ./complete_test.sh
 ```
 
 ### **Running the Program**
-```c
-# Usage: ./stairs_sim [NUMBER_OF_CUSTOMERS] [NUMBER_OF_STEPS]
+```bash
+# Usage: ./stairs then input customers and steps of the stair.
 
 # Example: Run simulation with 20 customers and 10 steps
-./stairs_sim 20 10
+>> ./stairs_sim 
+>> 20 10
+>> 0 1 0
+>> 1 1 100
+>> ...
 ```
 The program will output real-time logs for each customer thread and print the final average turnaround time at the end.
 

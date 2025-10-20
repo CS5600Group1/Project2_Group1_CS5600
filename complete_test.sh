@@ -9,7 +9,7 @@ echo "================================================="
 echo ""
 
 
-## gcc -pthread -o stairs "input c file name" -lrt
+make stairs
 echo "✓ Concurrent mock program compiled as 'stairs'"
 echo ""
 
@@ -107,13 +107,13 @@ run_test() {
     local finished=$(grep -c "finished stairs" $output_file)
     local direction_changes=$(grep -c "direction can change" $output_file)
     local waiting=$(grep -c "waiting for direction" $output_file)
-    local avg_time=$(grep "Average Turnaround" $output_file | awk '{print $NF}')
+    local avg_time=$(grep "Average Turnaround" $output_file | awk '{print $(NF-1)}')
     
     echo "  Total customers: $total"
     echo "  Finished: $finished"
     echo "  Direction changes: $direction_changes"
     echo "  Wait events: $waiting"
-    echo "  Avg turnaround: $avg_time"
+    echo "  Avg turnaround: $avg_time ms"
     
     if [ "$finished" -eq "$total" ]; then
         echo "✅ PASSED"

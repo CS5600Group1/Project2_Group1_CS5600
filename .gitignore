@@ -1,0 +1,7 @@
+*.o
+*.exe
+*.txt
+TEST_REPORT.md
+
+test_outputs
+.idea
