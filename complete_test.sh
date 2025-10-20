@@ -311,7 +311,7 @@ cat > TEST_REPORT.md << EOF
 
 ### ❌ Failed Tests May Indicate:
 1. **Deadlock**: Timeout in Test 3
-2. **Starvation**: Minority never completes in Test 6
+2. **Starvation**: Minority never completes in Test 5
 3. **Race condition**: Random failures, wrong counts
 4. **Incorrect synchronization**: Customers on stairs simultaneously from different directions
 
