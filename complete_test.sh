@@ -244,6 +244,20 @@ cat > TEST_REPORT.md << EOF
 
 **Tests**: Can customers join mid-crossing
 
+### Test 5: Extreme Starvation Prevention ⚠️ CRITICAL
+**Scenario**: 29 customers going down, 1 customer going up - all arrive simultaneously
+
+**Key Metrics**:
+- Completed: $(grep -c "Finished Stairs" test_outputs/Test5_Extreme_Starvation_output.txt)/30
+- Customer 29 (up) wait time: [Check if minority completes]
+- Direction changes: $(grep -c "Crossing direction reset" test_outputs/Test5_Extreme_Starvation_output.txt)
+
+**Tests**: Single minority customer must not starve despite 29:1 ratio
+
+**Expected Behavior**:
+- Customer 29 (going up) should eventually complete
+- System must give minority a chance even under extreme imbalance
+- NO infinite waiting
 
 ## Critical Concurrency Issues to Check
 
@@ -259,40 +273,7 @@ cat > TEST_REPORT.md << EOF
 3. **Race condition**: Random failures, wrong counts
 4. **Incorrect synchronization**: Customers on stairs simultaneously from different directions
 
----
 
-## Recommendations
-
-1. **If Test 3 times out**: Implement priority or first-come-first-served
-2. **If Test 6 fails**: Add maximum wait time or direction quotas
-3. **If any test shows wrong direction mixing**: Check mutex critical sections
-4. **For performance**: Minimize time holding locks
-
----
-
-## How to Use This with Your Real Implementation
-
-1. Replace \`mock_stairs.c\` with your actual \`stairs.c\`
-2. Ensure your implementation reads: \`customer_id direction arrival_time_ms\`
-3. Re-run: \`bash test_script.sh\`
-4. Check \`test_outputs/\` for detailed logs
-5. Focus on tests that fail or timeout
-
----
-
-## Input Format for Your Implementation
-
-\`\`\`
-<num_customers> <num_steps>
-<id> <direction> <arrival_time_ms>
-<id> <direction> <arrival_time_ms>
-...
-\`\`\`
-
-Where:
-- \`direction\`: 1 = up, -1 = down
-- \`arrival_time_ms\`: When customer arrives (milliseconds from start)
-EOF
 
 echo "✓ Comprehensive test report generated: TEST_REPORT.md"
 echo ""
