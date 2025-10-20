@@ -55,7 +55,6 @@ If an “up” thread arrives while `dir == 1`, it waits on `upstair`. Similarly
 
 // Represents the shared staircase resource
 struct tunnel {
-
     int step;                  // Number of steps (determines sleep time)
     int dir;                   // Current direction: 0=none, 1=up, 2=down
     
