@@ -226,6 +226,7 @@ cat > TEST_REPORT.md << EOF
 | Test 2 | Alternating direction arrivals | $(cat test_outputs/Test2_Alternating_result.txt) | Frequent switches |
 | Test 3 | Deadlock risk scenario | $(cat test_outputs/Test3_Deadlock_result.txt) | Simultaneous opposite |
 | Test 4 | Dynamic joining | $(cat test_outputs/Test4_Dynamic_result.txt) | Join during use |
+| Test 5 | Extreme starvation prevention | $(cat test_outputs/Test5_Extreme_Starvation_result.txt) | 29:1 ratio |
 ---
 
 ## Detailed Test Analysis
@@ -250,7 +251,6 @@ cat > TEST_REPORT.md << EOF
 **Key Metrics**:
 - Completed: $(grep -c "finished stairs" test_outputs/Test2_Alternating_output.txt)/10
 - Direction changes: $(grep -c "direction can change" test_outputs/Test2_Alternating_output.txt)
-- Average wait: $(grep "Average" test_outputs/Test2_Alternating_output.txt | awk '{print $NF}')
 
 **Tests**: Frequent direction switching efficiency
 
