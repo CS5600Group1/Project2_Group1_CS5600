@@ -77,7 +77,7 @@ EOF
 echo "✓ Enhanced test input files created"
 echo ""
 
-# Step 3: 运行增强测试
+# Step 3:
 echo "Step 3: Running comprehensive tests..."
 echo "========================================="
 
@@ -103,7 +103,6 @@ run_test() {
         return
     fi
     
-    # 分析结果
     local total=$(head -n 1 $input_file | awk '{print $1}')
     local finished=$(grep -c "finished stairs" $output_file)
     local direction_changes=$(grep -c "direction can change" $output_file)
@@ -137,7 +136,7 @@ run_test "Test3_Deadlock" "test3_deadlock_risk.txt" \
 run_test "Test4_Dynamic" "test4_dynamic_join.txt" \
     "Customers join while stairs are in use"
 
-# Step 4: 生成详细报告
+# Step 4:Report
 echo ""
 echo "========================================="
 echo "         COMPREHENSIVE TEST REPORT"
