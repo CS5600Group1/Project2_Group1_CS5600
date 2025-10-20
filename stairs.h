@@ -19,24 +19,24 @@
 
 // Tunnel Structure Definition
 typedef struct {
-    int step;
-    int dir; // (-1: down, 0: none, 1: up)
+    int step;                   // Number of steps (determines sleep time)
+    int dir;                    // Current direction: 0=none, 1=up, 2=down
 
-    pthread_mutex_t lock;
-    pthread_cond_t cond;
+    int counterUpstair;         // Number of customers currently on the stairs
+    int counterDownstair;       // Number of customers currently on the stairs
 
-    int counterUpstair;
-    int counterDownstair;
+    int waitingUpstair;         // Waiting “up” customers
+    int waitingDownstair;       // Waiting “down” customers
 
-    int waitingUpstair;
-    int waitingDownstair;
+    pthread_mutex_t lock;       // Protects all variables in this struct
+    pthread_cond_t cond;        // Condition variable for Single Direction threads
 
-    int consecutive;
-
+    int consecutive;            // Prevent Starvation by recording how many customers
+                                // have passed consecutively in the same direction
 } Tunnel;
 
 void stairInit(Tunnel *tunnel, int step);
-void threadUpstair(Tunnel *tunnel);
-void threadDownstair(Tunnel *tunnel);
+void threadUpstair(Tunnel *tunnel, int id);
+void threadDownstair(Tunnel *tunnel, int id);
 
 #endif //TUNNEL_H

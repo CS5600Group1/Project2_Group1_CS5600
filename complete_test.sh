@@ -10,7 +10,15 @@ echo ""
 
 #Step 1: make stairs and compile
 echo "Step 1: Compiling the concurrent mock program..."
-make stairs
+
+# if run in windows
+arg1=$1
+if [ -z "$arg1" ]; then
+  make stairs PLATFORM=unix
+elif [ "$arg1" == "win" ]; then
+  make stairs PLATFORM=win
+fi
+
 echo "✓ Concurrent mock program compiled as 'stairs'"
 echo ""
 
@@ -128,7 +136,7 @@ run_test() {
     echo "Running $test_name"
     echo "Description: $description"
     echo "-----------------------------------------"
-    
+
     timeout 30 ./stairs < $input_file > $output_file 2>&1
     local exit_code=$?
     

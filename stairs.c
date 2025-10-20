@@ -24,8 +24,8 @@ void stairInit(Tunnel *tunnel, int step) {
 }
 
 // Thread Functions Declaration
-static void enterStair(Tunnel *tunnel, int direction) {
-    printf("Customer(%s)[%lu] waiting for mutex.\n", direction == UP ? "Up" : "Down", GET_PID);
+static void enterStair(Tunnel *tunnel, int direction, int id) {
+    printf("Customer(%s)[%d] waiting for mutex.\n", direction == UP ? "Up" : "Down", id);
     
     // Acquire lock
     pthread_mutex_lock(&tunnel->lock);
@@ -40,8 +40,8 @@ static void enterStair(Tunnel *tunnel, int direction) {
         } else if (direction == DOWN) {
             if (tunnel->dir != UP && tunnel->counterUpstair == 0 && tunnel->consecutive <= STARVATION) break;
         }
-        printf("Customer(%s)[%lu] waiting for direction. (Upstair wait: %d, Downstair wait: %d)\n",
-            direction == UP ? "Up" : "Down", GET_PID, tunnel->waitingUpstair, tunnel->waitingDownstair);
+        printf("Customer(%s)[%d] waiting for direction. (Upstair wait: %d, Downstair wait: %d)\n",
+            direction == UP ? "Up" : "Down", id, tunnel->waitingUpstair, tunnel->waitingDownstair);
         pthread_cond_wait(&tunnel->cond, &tunnel->lock);
     }
 
@@ -53,7 +53,7 @@ static void enterStair(Tunnel *tunnel, int direction) {
         tunnel->counterDownstair++;
     }
 
-    printf("Customer(%s)[%lu] going up.\n", direction == UP ? "Up" : "Down", GET_PID);
+    printf("Customer(%s)[%d] going up.\n", direction == UP ? "Up" : "Down", id);
     tunnel->dir = direction;
     tunnel->consecutive++;
 
@@ -62,8 +62,8 @@ static void enterStair(Tunnel *tunnel, int direction) {
 }
 
 // Thread Functions Definition
-static void leaveStair(Tunnel *tunnel, int direction) {
-    printf("Customer(%s)[%lu] waiting for mutex.\n", direction == UP ? "Up" : "Down", GET_PID);
+static void leaveStair(Tunnel *tunnel, int direction, int id) {
+    printf("Customer(%s)[%d] waiting for mutex.\n", direction == UP ? "Up" : "Down", id);
     
     // Acquire lock
     pthread_mutex_lock(&tunnel->lock);
@@ -85,41 +85,41 @@ static void leaveStair(Tunnel *tunnel, int direction) {
         pthread_cond_broadcast(&tunnel->cond);
         }
 
-    printf("Customer(%s)[%lu] left.\n", direction == UP ? "Up" : "Down", GET_PID);
+    printf("Customer(%s)[%d] left.\n", direction == UP ? "Up" : "Down", id);
     
     // Release lock
     pthread_mutex_unlock(&tunnel->lock);
 }
 
 // Thread Functions
-void threadUpstair(Tunnel *tunnel) {
+void threadUpstair(Tunnel *tunnel, int id) {
     // Enter
-    enterStair(tunnel, UP);
+    enterStair(tunnel, UP, id);
 
     // upStair
-    printf("Customer(Up)[%lu] crossing the stairs now.\n", GET_PID);
+    printf("Customer(Up)[%d] crossing the stairs now.\n", id);
     for (int i = 1; i <= tunnel->step; i++) {
-        printf("Customer(Up)[%lu] crossing Step %d now.\n", GET_PID, i);
+        printf("Customer(Up)[%d] crossing Step %d now.\n", id, i);
         usleep(DURATION);
     }
-    printf("Customer(Up)[%lu] finished stairs.\n", GET_PID);
+    printf("Customer(Up)[%d] finished stairs.\n", id);
 
     // Leave
-    leaveStair(tunnel, UP);
+    leaveStair(tunnel, UP, id);
 }
 
-void threadDownstair(Tunnel *tunnel) {
+void threadDownstair(Tunnel *tunnel, int id) {
     // Enter
-    enterStair(tunnel, DOWN);
+    enterStair(tunnel, DOWN, id);
 
     // upStair
-    printf("Customer(Down)[%lu] crossing the stairs now.\n", GET_PID);
+    printf("Customer(Down)[%d] crossing the stairs now.\n", id);
     for (int i = tunnel->step; i > 0; i--) {
-        printf("Customer(Down)[%lu] crossing Step %d now.\n", GET_PID, i);
+        printf("Customer(Down)[%d] crossing Step %d now.\n", id, i);
         usleep(DURATION);
     }
-    printf("Customer(Down)[%lu] finished stairs.\n", GET_PID);
+    printf("Customer(Down)[%d] finished stairs.\n", id);
 
     // Leave
-    leaveStair(tunnel, DOWN);
+    leaveStair(tunnel, DOWN, id);
 }

@@ -4,13 +4,21 @@ CC = gcc
 CFLAGS = -Wall -Wextra -std=c11 -pthread
 LDFLAGS = -pthread -lrt
 
-TARGET = stairs
 OBJ_STAIRS = stairs.o stairs_main.o
+
+TARGET = stairs
+PLATFORM ?= unix
+
+ifeq ($(PLATFORM), unix)
+CCFLAGS = $(CC) $(CFLAGS) $(LDFLAGS)
+else ifeq ($(PLATFORM), win)
+CCFLAGS = $(CC) $(CFLAGS)
+endif
 
 all: $(TARGET)
 
 $(TARGET): $(OBJ_STAIRS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CCFLAGS) -o $@ $^
 
 stairs.o: stairs.c stairs.h
 	$(CC) $(CFLAGS) -c stairs.c -o stairs.o

@@ -42,7 +42,7 @@ void *threadA(void* arg)
 
     long actual_start= now_ms();
 
-    threadUpstair(tunnel);
+    threadUpstair(tunnel, info->id);
 
     long actual_end = now_ms();
     turnaroundTime[info->id] = actual_end-actual_start;
@@ -58,7 +58,7 @@ void *threadB(void* arg)
 
     long actual_start= now_ms();
 
-    threadDownstair(tunnel);
+    threadDownstair(tunnel, info->id);
 
     long actual_end = now_ms();
     turnaroundTime[info->id] = actual_end-actual_start;
@@ -101,6 +101,7 @@ int main()
         pthread_join(threads[i], NULL);
 
 
+    // average turnaround time
     long sum = 0;
     for(int i=0; i<customer; i++) {
         sum += turnaroundTime[i];

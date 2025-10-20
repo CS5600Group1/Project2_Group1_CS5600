@@ -79,12 +79,12 @@ void stairInit(Tunnel *tunnel, int step);
 /**
  * Function executed by “up” threads.
  */
-void threadUpstair(Tunnel *tunnel);
+void threadUpstair(Tunnel *tunnel, int id);
 
 /**
  * Function executed by “down” threads.
  */
-void threadDownstair(Tunnel *tunnel);
+void threadDownstair(Tunnel *tunnel, int id);
 ```
 
 ## **3. Testing**
@@ -179,16 +179,21 @@ Our implementation achieves efficiency through:
 The program must be compiled with gcc and linked against the POSIX threads library (`-lpthread`).
 
 To build the project:
+```bash
 make all
+# if you want to build it in windows, use
+make all PLATFORM=win
+```
 
 ### **Running the Program**
 ```bash
 # Usage: ./stairs then input customers and steps of the stair.
 
-```Test 
 # Usage :chmod +x complete_test.sh;
-        ./complete_test.sh 
+./complete_test.sh
 
+# also if you want to run the test in windows, use
+bash ./complete_test.sh win
 ```
 The program will output real-time logs for each customer thread and print the final average turnaround time at the end.
 
