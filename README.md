@@ -98,24 +98,34 @@ We tested the program by running it with various combinations of customer counts
 
 We created several scenarios to trigger potential edge cases:
 
-- **Balanced Load (10 Up, 10 Down)**
+- **Balanced Load (5 Up, 5 Down)**
 
     - **Purpose:** To test for efficient switching between directions and measure a baseline average turnaround time.
 
     - **Result:** The simulation ran smoothly. A batch of “up” threads crossed, followed by a batch of “down” threads, and so on until all threads completed. No deadlock occurred, and switching was efficient.
 
-- **Starvation Test (29 Up, 1 Down)**
-
-    - **Purpose:** A stress test to ensure the single “down” customer would eventually get a turn and not be starved by the continuous stream of “up” customers.
-
-    - **Result:** The “up” threads crossed in one or more large batches. After the last “up” thread from the initial wave finished, our starvation-prevention logic correctly gave priority to the waiting “down” thread, which was able to cross successfully before any new “up” threads could start.
-
-- **High Contention / Deadlock Test (Alternating Arrivals)**
+- **High Contention(Alternating Arrivals)**
 
     - **Purpose:** Simulates customers arriving in alternating directions (up, down, up, down...) to create maximum contention and test for potential race conditions or deadlocks.
 
     - **Result:** The first “up” thread set the direction to “up”. The subsequent “down” thread arrived and was correctly forced to wait. When the “up” thread finished, it signaled the “down” thread, which then crossed. This process repeated without any deadlocks.
 
+- **Deadlock Test**
+
+    - **Purpose:** Simulate when two different customers come at same time,test whether it cause dead lock.
+
+    - **Result:** Althrough at same time, due to the automic operation, one of the customer decide the direction and another wait to excute
+ 
+- **Dynamic**
+
+    - **Purpose:** Simulate if some customers arrive while other excuting, test when the system will change direction.
+
+    - **Result:** Customer 2 arrived and wait to excute,if the number of customers entering consecutively has not reached the predetermined limit, even if customer3 arrives after customer2 but is heading in the same direction, customer3 will still enter the staircase first. Only when the limit is reached or the staircase is empty will customer2 be able to enter.
+- **Starvation Test (29 Up, 1 Down)**
+
+    - **Purpose:** A stress test to ensure the single “down” customer would eventually get a turn and not be starved by the continuous stream of “up” customers.
+
+    - **Result:** The “up” threads crossed in one or more large batches. After the last “up” thread from the initial wave finished, our starvation-prevention logic correctly gave priority to the waiting “down” thread, which was able to cross successfully before any new “up” threads could start.
 ## **4. Guarantees**
 
 ### **Deadlock Prevention**
