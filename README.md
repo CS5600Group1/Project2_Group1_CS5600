@@ -154,18 +154,23 @@ Turnaround time is measured from the moment a thread is created to the moment it
 
 ### **Average Turnaround Time**
 
-| Test Case       | Customer Count (Up/Down) | Steps (Sleep Time) | Avg. Turnaround Time (sec) |
-| --------------- | ------------------------ | ------------------ | -------------------------- |
-| Balanced Load   | 10 Up / 10 Down          | 10                 | `[Fill in your result]`    |
-| Starvation Test | 29 Up / 1 Down           | 10                 | `[Fill in your result]`    |
-| High Contention | 15 Up / 15 Down          | 5                  | `[Fill in your result]`    |
-| High Contention | 15 Up / 15 Down          | 5                  | `[Fill in your result]`    |
+| Test Case           | Customer Count (Up/Down) | Steps              | Avg. Turnaround Time (sec) |
+| ---------------     | ------------------------ | ------------------ | -------------------------- |
+| Balanced Load       | 5 Up / 5 Down            | 5                  | 1160.40 ms                 |
+| Alternating Arrivals| 5 Up / 5 Down            | 5                  | 1779.70 ms                 |
+| Deadlock Test       | 1 Up / 1 Down            | 5                  | 1413.00 ms                 |
+| Dynamic             | 9 Up / 6 Down            | 10                 | 3712.13 ms                 |
+| Starvation Test     | 29 Up / 1 Down           | 10                 | 5938.50 ms                 |
 
 ### **"Efficient" Design**
 
-Our definition of "efficient" is maximizing throughput by allowing multiple customers on the stairs at once, as long as they are moving in the same direction.
+Our implementation achieves efficiency through:
 
-This is achieved with our counter variable. If a customer wants to go "up" and the stairs are already in use for "up" (`dir == 1`), they do not wait. They simply increment counter, release the lock, and cross immediately in parallel with others. This "batching" strategy is far more efficient than a naive design that allows only one person on the stairs at a time, which would serialize all customers regardless of direction. Our design only serializes the groups of opposing traffic, not the individuals within those groups.
+1. **Concurrent Stair Usage**: Multiple customers going the same direction can use stairs simultaneously (not one-at-a-time), maximizing throughput.
+
+2. **Batch Processing with Threshold**: Direction switches only occur after serving a batch （5 customer）, reducing context switch.
+
+3. **Adaptive Flow**: When one direction has no waiting customers, the other direction continues without unnecessary waits. In Test5 (29/1), not wait 1 up customer wait until other finished, but exchange direction to avoid starvation.
 
 ## **6. How to Compile, Run, and Test**
 
@@ -174,24 +179,16 @@ This is achieved with our counter variable. If a customer wants to go "up" and t
 The program must be compiled with gcc and linked against the POSIX threads library (`-lpthread`).
 
 To build the project:
-```bash
-make stairs
-```
-For the test cases:
-```bash
-bash ./complete_test.sh
-```
+make all
 
 ### **Running the Program**
 ```bash
 # Usage: ./stairs then input customers and steps of the stair.
 
-# Example: Run simulation with 20 customers and 10 steps
->> ./stairs_sim 
->> 20 10
->> 0 1 0
->> 1 1 100
->> ...
+```Test 
+# Usage :chmod +x complete_test.sh;
+        ./complete_test.sh 
+
 ```
 The program will output real-time logs for each customer thread and print the final average turnaround time at the end.
 
@@ -207,11 +204,11 @@ The program will output real-time logs for each customer thread and print the fi
 
 **Changfeng Wang:**
 
-- Wrote the `main` function, including command-line argument parsing and the thread creation/joining loop.
+- Wrote the `main` function, including the thread creation/joining loop.
 
 - Implemented the turnaround time calculation and final performance reporting.
 
-- Designed and ran the specific test cases for balanced loads and high contention.
+- Designed and ran the specific test cases.
 
 **Tianyu Ma:**
 
